@@ -152,6 +152,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dc8471e9ab051746a111b0cf1c6d3b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chessmanPrefabs:
+  - {fileID: 1389686872840900, guid: bc613eb8794cbde4bba845e043ee5518, type: 3}
+  - {fileID: 1945632463053948, guid: ed7f980b966027f4ea0a6497994a3089, type: 3}
+  - {fileID: 1971375302472462, guid: e391b063047dbc24e997486ad99d5390, type: 3}
+  - {fileID: 1028868664329696, guid: ccf7e53d2774c6a4c9f6b374bfb0ca28, type: 3}
+  - {fileID: 1992623236052302, guid: 468b6692d4b265e4a8ecbbfbfdfa7c14, type: 3}
+  - {fileID: 1006356879557798, guid: f1420f0eac0bfcd4996ef4c26119b721, type: 3}
+  - {fileID: 1179637952412708, guid: cddcbc2ab8bd3db468025666cd8eabeb, type: 3}
+  - {fileID: 1471985601831630, guid: da6f8ac2d5e66f64e81784adfc4c16fc, type: 3}
+  - {fileID: 1211746330687442, guid: 1db722d693c60d848a01b2e2b4cfbcc9, type: 3}
+  - {fileID: 1672242659374470, guid: cb084f966c2c96f428804a9254dd439d, type: 3}
+  - {fileID: 1179637952412708, guid: cddcbc2ab8bd3db468025666cd8eabeb, type: 3}
+  - {fileID: 1867195236767680, guid: 396c020320f3f45498078557db0150a5, type: 3}
+  activeChessman: []
+  isWhiteTurn: 1
 --- !u!4 &103433530
 Transform:
   m_ObjectHideFlags: 0
