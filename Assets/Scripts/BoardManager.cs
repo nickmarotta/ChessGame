@@ -85,6 +85,8 @@ public class BoardManager : MonoBehaviour
             Chessmans[selectedChessman.CurrentX, selectedChessman.CurrentY] = null;
             selectedChessman.transform.position = GetTileCenter(x, y);
             Chessmans[x, y] = selectedChessman;
+            //Swap turn 
+            isWhiteTurn = !isWhiteTurn;
         }
 
         selectedChessman = null;
