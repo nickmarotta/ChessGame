@@ -5,6 +5,9 @@ using UnityEngine;
 public class BoardManager : MonoBehaviour
 {
 
+    public static BoardManager instance { set; get; }
+    private bool[,] allowedMoves { set; get; }
+
     enum Chessmen
     {
         WHITE_KING,
@@ -23,10 +26,12 @@ public class BoardManager : MonoBehaviour
 
     //We're initializing a multi dimensional array here 
     public Chessman[,] Chessmans { set; get; }
+
+    public const int BOARD_SIZE = 8;
     private Chessman selectedChessman;
 
-    private const float TILE_SIZE = 1.0f;
-    private const float TILE_OFFSET = 0.5f;
+    public const float TILE_SIZE = 1.0f;
+    public const float TILE_OFFSET = 0.5f;
 
     private int selectionX = -1;
     private int selectionY = -1;
@@ -39,6 +44,7 @@ public class BoardManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        instance = this;
         SpawnAllChessmen();
     }
 
@@ -75,34 +81,57 @@ public class BoardManager : MonoBehaviour
             return;
 
         selectedChessman = Chessmans[x, y];
-
+        allowedMoves = selectedChessman.PossibleMove();
+        BoardHighlights.instance.HighlightAllowedMoves(allowedMoves);
     }
 
     private void MoveChessman(int x, int y)
     {
-        if (selectedChessman.PossibleMove(x, y))
+        if (allowedMoves[x, y])
         {
+            Chessman pieceAtTargetSqaure = Chessmans[x, y];
+            //If there is a piece at target square, and that piece is not your own piece
+            if (pieceAtTargetSqaure != null && pieceAtTargetSqaure.isWhite != isWhiteTurn)
+            {
+                //Capture a piece
+
+                //If it is the king 
+                if (pieceAtTargetSqaure.GetType() == typeof(King))
+                {
+                    //TODO: End the game 
+                    return;
+                }
+
+                activeChessman.Remove(pieceAtTargetSqaure.gameObject);
+                Destroy(pieceAtTargetSqaure.gameObject);
+            }
+
             Chessmans[selectedChessman.CurrentX, selectedChessman.CurrentY] = null;
+            //Move the chessman object on the board
             selectedChessman.transform.position = GetTileCenter(x, y);
+            //Update recorded position on the chessMan object
+            selectedChessman.SetPosition(x, y);
+            //Add chessman object to our chessmans array to keep track
             Chessmans[x, y] = selectedChessman;
             //Swap turn 
             isWhiteTurn = !isWhiteTurn;
         }
 
+        BoardHighlights.instance.HideHighlights();
         selectedChessman = null;
     }
 
 
     private void DrawChessboard()
     {
-        Vector3 widthLine = Vector3.right * 8;
-        Vector3 heigthLine = Vector3.forward * 8;
+        Vector3 widthLine = Vector3.right * BOARD_SIZE;
+        Vector3 heigthLine = Vector3.forward * BOARD_SIZE;
 
-        for (int i = 0; i <= 8; i++)
+        for (int i = 0; i <= BOARD_SIZE; i++)
         {
             Vector3 start = Vector3.forward * i;
             Debug.DrawLine(start, start + widthLine);
-            for (int j = 0; j <= 8; j++)
+            for (int j = 0; j <= BOARD_SIZE; j++)
             {
                 start = Vector3.right * j;
                 Debug.DrawLine(start, start + heigthLine);
@@ -167,7 +196,7 @@ public class BoardManager : MonoBehaviour
     */
     private void SpawnChessman(int chessmanIndex, int x, int y)
     {
-        //Not sure why this randomly broke, but I need to rotate the pieces separately now. 
+        //Not sure why this randomly broke, but I need to rotate the pieces separately now.  
         GameObject chessman;
         Quaternion eulerRotation = Quaternion.Euler(0, 180, 0);
         if (chessmanIndex <= 5)
@@ -197,7 +226,7 @@ public class BoardManager : MonoBehaviour
         SpawnChessman((int)Chessmen.WHITE_BISHOP, 5, 0);
         SpawnChessman((int)Chessmen.WHITE_KNIGHT, 1, 0);
         SpawnChessman((int)Chessmen.WHITE_KNIGHT, 6, 0);
-        for (int column = 0; column < 8; column++)
+        for (int column = 0; column < BOARD_SIZE; column++)
             SpawnChessman((int)Chessmen.WHITE_PAWN, column, 1);
         SpawnChessman((int)Chessmen.BLACK_KING, 4, 7);
         SpawnChessman((int)Chessmen.BLACK_QUEEN, 3, 7);
@@ -207,7 +236,7 @@ public class BoardManager : MonoBehaviour
         SpawnChessman((int)Chessmen.BLACK_BISHOP, 5, 7);
         SpawnChessman((int)Chessmen.BLACK_KNIGHT, 1, 7);
         SpawnChessman((int)Chessmen.BLACK_KNIGHT, 6, 7);
-        for (int column = 0; column < 8; column++)
+        for (int column = 0; column < BOARD_SIZE; column++)
             SpawnChessman((int)Chessmen.BLACK_PAWN, column, 6);
 
     }
