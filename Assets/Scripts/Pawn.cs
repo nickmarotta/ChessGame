@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,13 +11,14 @@ public class Pawn : Chessman
         // when you're in the left column or the right column. Only one of the coords matters. 
         bool[,] possibleMoves = new bool[8, 8];
         Chessman c, c2;
+        bool isPieceInLeftColumn = CurrentX == 0;
+        bool isPieceInRightColumn = CurrentX == 7;
 
         // White team move 
         if (isWhite)
         {
             //Diagonal Left
-            bool isPieceOnTopLeftCorner = CurrentX == 0 && CurrentY == 7;
-            if (!isPieceOnTopLeftCorner)
+            if (!isPieceInLeftColumn)
             {
                 //If space to diagonal left is not empty AND the piece is black 
                 //  then move is possible 
@@ -26,8 +27,7 @@ public class Pawn : Chessman
                     possibleMoves[CurrentX - 1, CurrentY + 1] = true;
             }
             //Diagonal Right
-            bool isPieceOnTopRightCorner = CurrentX == 7 && CurrentY == 7;
-            if (!isPieceOnTopRightCorner)
+            if (!isPieceInRightColumn)
             {
                 //If space to diagonal right is not empty AND the piece is black 
                 //  then move is possible 
@@ -63,20 +63,18 @@ public class Pawn : Chessman
         else
         {
             //Diagonal Left
-            bool isPieceOnBottomLeftCorner = CurrentX == 0 && CurrentY == 0;
-            if (!isPieceOnBottomLeftCorner)
+            if (!isPieceInLeftColumn)
             {
-                //If space to diagonal left is not empty AND the piece is black 
+                //If space to diagonal left is not empty AND the piece is white 
                 //  then move is possible 
                 c = BoardManager.instance.Chessmans[CurrentX - 1, CurrentY - 1];
                 if (c != null && c.isWhite)
                     possibleMoves[CurrentX - 1, CurrentY - 1] = true;
             }
             //Diagonal Right
-            bool isPieceOnTopRightCorner = CurrentX == 7 && CurrentY == 0;
-            if (!isPieceOnTopRightCorner)
+            if (!isPieceInRightColumn)
             {
-                //If space to diagonal right is not empty AND the piece is black 
+                //If space to diagonal right is not empty AND the piece is white 
                 //  then move is possible 
                 c = BoardManager.instance.Chessmans[CurrentX + 1, CurrentY - 1];
                 if (c != null && c.isWhite)
