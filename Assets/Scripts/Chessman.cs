@@ -18,4 +18,8 @@ public abstract class Chessman : MonoBehaviour
     {
         return new bool[8, 8];
     }
+
+    public bool isEnemyPiece(Chessman chessman) {
+        return isWhite != chessman.isWhite;
+    }
 }
