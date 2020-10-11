@@ -39,6 +39,11 @@ public class BoardManager : MonoBehaviour
     public List<GameObject> chessmanPrefabs;
     public List<GameObject> activeChessman;
 
+    private Material previousMat;
+    public Material selectedMat;
+
+    public int[] EnPassantMove { set; get; }
+
     public bool isWhiteTurn = true;
 
     // Start is called before the first frame update
@@ -82,6 +87,9 @@ public class BoardManager : MonoBehaviour
 
         selectedChessman = Chessmans[x, y];
         allowedMoves = selectedChessman.PossibleMove();
+        previousMat = selectedChessman.GetComponent<MeshRenderer>().material;
+        selectedMat.mainTexture = previousMat.mainTexture;
+        selectedChessman.GetComponent<MeshRenderer>().material = selectedMat;
         BoardHighlights.instance.HighlightAllowedMoves(allowedMoves);
     }
 
@@ -98,13 +106,17 @@ public class BoardManager : MonoBehaviour
                 //If it is the king 
                 if (pieceAtTargetSqaure.GetType() == typeof(King))
                 {
-                    //TODO: End the game 
+                    EndGame();
                     return;
                 }
 
                 activeChessman.Remove(pieceAtTargetSqaure.gameObject);
                 Destroy(pieceAtTargetSqaure.gameObject);
             }
+
+            PawnPromotion(x, y);
+            ExecuteEnPassant(x, y);
+            SetupEnPassant(x, y);
 
             Chessmans[selectedChessman.CurrentX, selectedChessman.CurrentY] = null;
             //Move the chessman object on the board
@@ -118,9 +130,73 @@ public class BoardManager : MonoBehaviour
         }
 
         BoardHighlights.instance.HideHighlights();
+        selectedChessman.GetComponent<MeshRenderer>().material = previousMat;
         selectedChessman = null;
     }
 
+    private void SetupEnPassant(int x, int y)
+    {
+        EnPassantMove[0] = -1;
+        EnPassantMove[1] = -1;
+
+        //If we move a pawn 2 spaces on the first turn and we pass another pawn on the left or 
+        // or right, then by the en passant rule, we can be captured. This code block records 
+        // where a potential en passant could take place.
+        if (selectedChessman.GetType() == typeof(Pawn))
+        {
+            bool isWhitePawnFirstMove = selectedChessman.CurrentY == 1;
+            bool isBlackPawnFirstMove = selectedChessman.CurrentY == 6;
+            if (isWhitePawnFirstMove && y == 3)
+            {
+                EnPassantMove[0] = x;
+                EnPassantMove[1] = y - 1;
+            }
+            else if (isBlackPawnFirstMove && y == 4)
+            {
+                EnPassantMove[0] = x;
+                EnPassantMove[1] = y + 1;
+            }
+        }
+    }
+
+    private void ExecuteEnPassant(int x, int y)
+    {
+        bool enPassantMoveWasTaken = x == EnPassantMove[0] && y == EnPassantMove[1];
+        if (enPassantMoveWasTaken)
+        {
+            Chessman pieceBehindTargetSquare;
+            //White 
+            if (isWhiteTurn)
+                pieceBehindTargetSquare = Chessmans[x, y - 1];
+            //Black 
+            else
+                pieceBehindTargetSquare = Chessmans[x, y + 1];
+
+            activeChessman.Remove(pieceBehindTargetSquare.gameObject);
+            Destroy(pieceBehindTargetSquare.gameObject);
+        }
+    }
+
+    private void PawnPromotion(int x, int y)
+    {
+        if (selectedChessman.GetType() == typeof(Pawn))
+        {
+            if (y == 7) //White 
+            {
+                activeChessman.Remove(selectedChessman.gameObject);
+                Destroy(selectedChessman.gameObject);
+                SpawnChessman((int)Chessmen.WHITE_QUEEN, x, y);
+                selectedChessman = Chessmans[x, y];
+            }
+            else if (y == 0) //Black
+            {
+                activeChessman.Remove(selectedChessman.gameObject);
+                Destroy(selectedChessman.gameObject);
+                SpawnChessman((int)Chessmen.BLACK_QUEEN, x, y);
+                selectedChessman = Chessmans[x, y];
+            }
+        }
+    }
 
     private void DrawChessboard()
     {
@@ -217,6 +293,7 @@ public class BoardManager : MonoBehaviour
     {
         activeChessman = new List<GameObject>();
         Chessmans = new Chessman[8, 8];
+        EnPassantMove = new int[2] { -1, -1 };
 
         SpawnChessman((int)Chessmen.WHITE_KING, 3, 0);
         SpawnChessman((int)Chessmen.WHITE_QUEEN, 4, 0);
@@ -248,5 +325,26 @@ public class BoardManager : MonoBehaviour
         origin.x += (TILE_SIZE * x) + TILE_OFFSET;
         origin.z += (TILE_SIZE * y) + TILE_OFFSET;
         return origin;
+    }
+
+    private void EndGame()
+    {
+        if (isWhiteTurn)
+        {
+            Debug.Log("White team wins!");
+        }
+        else
+        {
+            Debug.Log("Black team wins!");
+        }
+
+        foreach (GameObject go in activeChessman)
+        {
+            Destroy(go);
+        }
+
+        isWhiteTurn = true;
+        BoardHighlights.instance.HideHighlights();
+        SpawnAllChessmen();
     }
 }

@@ -7,12 +7,12 @@ public class Pawn : Chessman
     public override bool[,] PossibleMove()
     {
 
-        //TODO: I think the logic in this function can be simplified. Idt you can go diagonal left or right 
-        // when you're in the left column or the right column. Only one of the coords matters. 
         bool[,] possibleMoves = new bool[8, 8];
         Chessman c, c2;
         bool isPieceInLeftColumn = CurrentX == 0;
         bool isPieceInRightColumn = CurrentX == 7;
+        int[] enPassant = BoardManager.instance.EnPassantMove;
+
 
         // White team move 
         if (isWhite)
@@ -20,6 +20,10 @@ public class Pawn : Chessman
             //Diagonal Left
             if (!isPieceInLeftColumn)
             {
+                //EnPassant Move 
+                if (enPassant[0] == CurrentX - 1 && enPassant[1] == CurrentY + 1)
+                    possibleMoves[CurrentX - 1, CurrentY + 1] = true;
+
                 //If space to diagonal left is not empty AND the piece is black 
                 //  then move is possible 
                 c = BoardManager.instance.Chessmans[CurrentX - 1, CurrentY + 1];
@@ -29,6 +33,10 @@ public class Pawn : Chessman
             //Diagonal Right
             if (!isPieceInRightColumn)
             {
+                //EnPassant Move 
+                if (enPassant[0] == CurrentX + 1 && enPassant[1] == CurrentY + 1)
+                    possibleMoves[CurrentX + 1, CurrentY + 1] = true;
+
                 //If space to diagonal right is not empty AND the piece is black 
                 //  then move is possible 
                 c = BoardManager.instance.Chessmans[CurrentX + 1, CurrentY + 1];
@@ -65,6 +73,10 @@ public class Pawn : Chessman
             //Diagonal Left
             if (!isPieceInLeftColumn)
             {
+                //EnPassant Move 
+                if (enPassant[0] == CurrentX + 1 && enPassant[1] == CurrentY - 1)
+                    possibleMoves[CurrentX + 1, CurrentY - 1] = true;
+
                 //If space to diagonal left is not empty AND the piece is white 
                 //  then move is possible 
                 c = BoardManager.instance.Chessmans[CurrentX - 1, CurrentY - 1];
@@ -74,6 +86,10 @@ public class Pawn : Chessman
             //Diagonal Right
             if (!isPieceInRightColumn)
             {
+                //EnPassant Move 
+                if (enPassant[0] == CurrentX - 1 && enPassant[1] == CurrentY - 1)
+                    possibleMoves[CurrentX - 1, CurrentY - 1] = true;
+
                 //If space to diagonal right is not empty AND the piece is white 
                 //  then move is possible 
                 c = BoardManager.instance.Chessmans[CurrentX + 1, CurrentY - 1];
